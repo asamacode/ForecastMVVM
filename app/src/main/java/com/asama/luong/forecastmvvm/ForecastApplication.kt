@@ -1,6 +1,7 @@
 package com.asama.luong.forecastmvvm
 
 import android.app.Application
+import androidx.preference.PreferenceManager
 import com.asama.luong.forecastmvvm.data.db.ForecastDatabase
 import com.asama.luong.forecastmvvm.data.network.*
 import com.asama.luong.forecastmvvm.data.provider.UnitProvider
@@ -34,5 +35,6 @@ class ForecastApplication : Application(), KodeinAware {
     override fun onCreate() {
         super.onCreate()
         AndroidThreeTen.init(this)
+        PreferenceManager.setDefaultValues(this, R.xml.prefereces, false)
     }
 }

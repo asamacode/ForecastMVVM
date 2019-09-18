@@ -2,6 +2,8 @@ package com.asama.luong.forecastmvvm.data.repository
 
 import androidx.lifecycle.LiveData
 import com.asama.luong.forecastmvvm.data.db.CurrentWeatherDao
+import com.asama.luong.forecastmvvm.data.db.WeatherLocationDao
+import com.asama.luong.forecastmvvm.data.db.entity.WeatherLocation
 import com.asama.luong.forecastmvvm.data.db.unitlocalized.UnitSpecificCurrentWeatherEntry
 import com.asama.luong.forecastmvvm.data.network.WeatherNetworkDataSource
 import com.asama.luong.forecastmvvm.data.network.response.CurrentWeatherResponse
@@ -13,8 +15,14 @@ import org.threeten.bp.ZonedDateTime
 
 class ForecastRepositoryImpl(
     private val currentWeatherDao: CurrentWeatherDao,
+    private val weatherLocationDao: WeatherLocationDao,
     private val weatherNetworkDataSource: WeatherNetworkDataSource
 ) : ForecastRepository {
+    override suspend fun getWeatherLocation(): LiveData<WeatherLocation> {
+        return withContext(Dispatchers.IO) {
+            return@withContext weatherLocationDao.getLocation()
+        }
+    }
 
     init {
         weatherNetworkDataSource.downloadedCurrentWeather.observeForever{ newCurrentWeather ->
@@ -30,7 +38,12 @@ class ForecastRepositoryImpl(
     }
 
     private suspend fun initWeatherData() {
-        if (isFetchCurrentNeeded(ZonedDateTime.now().minusHours(1)))
+        val lastWeatherLocation = weatherLocationDao.getLocation().value
+        if (lastWeatherLocation == null) {
+            fetchCurrentWeather()
+            return
+        }
+        if (isFetchCurrentNeeded(lastWeatherLocation.zonedDateTime))
             fetchCurrentWeather()
     }
 
@@ -49,6 +62,7 @@ class ForecastRepositoryImpl(
     private fun persistFetchedCurrentWeather(fetchedWeather: CurrentWeatherResponse) {
         GlobalScope.launch(Dispatchers.IO) {
             currentWeatherDao.upsert(fetchedWeather.currentWeatherEntry)
+            weatherLocationDao.upsert(fetchedWeather.location)
         }
     }
 }
