@@ -1,14 +1,18 @@
 package com.asama.luong.forecastmvvm
 
 import android.app.Application
+import android.content.Context
 import androidx.preference.PreferenceManager
 import com.asama.luong.forecastmvvm.data.db.ForecastDatabase
 import com.asama.luong.forecastmvvm.data.network.*
+import com.asama.luong.forecastmvvm.data.provider.LocationProvider
+import com.asama.luong.forecastmvvm.data.provider.LocationProviderImpl
 import com.asama.luong.forecastmvvm.data.provider.UnitProvider
 import com.asama.luong.forecastmvvm.data.provider.UnitProviderImpl
 import com.asama.luong.forecastmvvm.data.repository.ForecastRepository
 import com.asama.luong.forecastmvvm.data.repository.ForecastRepositoryImpl
 import com.asama.luong.forecastmvvm.ui.weather.current.CurrentViewModelFactory
+import com.google.android.gms.location.LocationServices
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -24,10 +28,13 @@ class ForecastApplication : Application(), KodeinAware {
 
         bind() from singleton { ForecastDatabase(instance()) }
         bind() from singleton { instance<ForecastDatabase>().currentWeatherDao() }
+        bind() from singleton { instance<ForecastDatabase>().weatherLocationDao() }
         bind<ConnectivityInterceptor>() with singleton { ConnectivityInterceptorImpl(instance()) }
         bind() from singleton { ApixuWeatherApiService(instance()) }
         bind<WeatherNetworkDataSource>() with singleton { WeatherNetworkDataSourceImpl(instance()) }
-        bind<ForecastRepository>() with singleton { ForecastRepositoryImpl(instance(), instance()) }
+        bind() from provider { LocationServices.getFusedLocationProviderClient(instance<Context>()) }
+        bind<LocationProvider>() with singleton { LocationProviderImpl(instance(), instance()) }
+        bind<ForecastRepository>() with singleton { ForecastRepositoryImpl(instance(), instance(), instance(), instance()) }
         bind<UnitProvider>() with singleton { UnitProviderImpl(instance()) }
         bind() from provider { CurrentViewModelFactory(instance(), instance()) }
     }

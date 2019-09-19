@@ -7,6 +7,7 @@ import com.asama.luong.forecastmvvm.data.db.entity.WeatherLocation
 import com.asama.luong.forecastmvvm.data.db.unitlocalized.UnitSpecificCurrentWeatherEntry
 import com.asama.luong.forecastmvvm.data.network.WeatherNetworkDataSource
 import com.asama.luong.forecastmvvm.data.network.response.CurrentWeatherResponse
+import com.asama.luong.forecastmvvm.data.provider.LocationProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ import org.threeten.bp.ZonedDateTime
 class ForecastRepositoryImpl(
     private val currentWeatherDao: CurrentWeatherDao,
     private val weatherLocationDao: WeatherLocationDao,
-    private val weatherNetworkDataSource: WeatherNetworkDataSource
+    private val weatherNetworkDataSource: WeatherNetworkDataSource,
+    private val locationProvider: LocationProvider
 ) : ForecastRepository {
     override suspend fun getWeatherLocation(): LiveData<WeatherLocation> {
         return withContext(Dispatchers.IO) {
@@ -39,7 +41,7 @@ class ForecastRepositoryImpl(
 
     private suspend fun initWeatherData() {
         val lastWeatherLocation = weatherLocationDao.getLocation().value
-        if (lastWeatherLocation == null) {
+        if (lastWeatherLocation == null || locationProvider.hasLocationChanged(lastWeatherLocation)) {
             fetchCurrentWeather()
             return
         }
@@ -54,7 +56,7 @@ class ForecastRepositoryImpl(
 
     private suspend fun fetchCurrentWeather() {
         weatherNetworkDataSource.fetchCurrentWeather(
-            "Dong Hoi",
+            locationProvider.getPreferredLocationString(),
             "vi"
         )
     }

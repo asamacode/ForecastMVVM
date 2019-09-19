@@ -1,23 +1,16 @@
 package com.asama.luong.forecastmvvm.ui.weather.current
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-
+import androidx.lifecycle.ViewModelProviders
 import com.asama.luong.forecastmvvm.R
-import com.asama.luong.forecastmvvm.data.network.ApixuWeatherApiService
-import com.asama.luong.forecastmvvm.data.network.ConnectivityInterceptorImpl
-import com.asama.luong.forecastmvvm.data.network.WeatherNetworkDataSourceImpl
 import com.asama.luong.forecastmvvm.internal.glide.GlideApp
 import com.asama.luong.forecastmvvm.ui.base.ScopedFragment
 import kotlinx.android.synthetic.main.current_weather_fragment.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.x.closestKodein
@@ -45,6 +38,14 @@ class CurrentWeatherFragment : ScopedFragment(), KodeinAware {
 
     private fun bindUI() = launch{
         val currentWeather = viewModel.weather.await()
+        val weatherLocation = viewModel.weatherLocation.await()
+
+        weatherLocation.observe(this@CurrentWeatherFragment, Observer {location ->
+            if (location == null) return@Observer
+
+            updateLocation(location.name)
+        })
+
         currentWeather.observe(this@CurrentWeatherFragment, Observer {
             if (it == null)
                 return@Observer
