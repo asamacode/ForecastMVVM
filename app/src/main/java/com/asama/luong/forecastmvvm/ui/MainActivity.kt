@@ -1,10 +1,12 @@
 package com.asama.luong.forecastmvvm.ui
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
@@ -42,7 +44,25 @@ class MainActivity : AppCompatActivity(), KodeinAware {
         bottom_nav.setupWithNavController(navController)
 
         NavigationUI.setupActionBarWithNavController(this, navController)
-        requestLocationPermission()
+
+        if (hasLocationPermission())
+            bindLocationManager()
+        else
+            requestLocationPermission()
+    }
+
+    private fun bindLocationManager() {
+        LifecycleBoundLocationManager(
+            this,
+            fusedLocationProviderClient,
+            locationCallback
+        )
+    }
+
+
+    private fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestLocationPermission() {
