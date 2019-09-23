@@ -1,6 +1,7 @@
 package com.asama.luong.forecastmvvm.data.network
 
 import com.asama.luong.forecastmvvm.data.network.response.CurrentWeatherResponse
+import com.asama.luong.forecastmvvm.data.network.response.FutureWeatherResponse
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import kotlinx.coroutines.Deferred
 import okhttp3.Interceptor
@@ -15,6 +16,13 @@ const val API_KEY = "89e8bd89085b41b7a4b142029180210"
 //http://api.apixu.com/v1/current.json?key=89e8bd89085b41b7a4b142029180210&q=London&lang=en
 
 interface ApixuWeatherApiService {
+
+    @GET("forecast.json")
+    fun getFutureWeather(
+        @Query("q") location: String,
+        @Query("days") days: Int,
+        @Query("lang") languageCode: String = "en"
+    ): Deferred<FutureWeatherResponse>
 
     @GET("current.json")
     fun getCurrentWeather(

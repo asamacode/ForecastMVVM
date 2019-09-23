@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.asama.luong.forecastmvvm.data.db.CurrentWeatherDao
 import com.asama.luong.forecastmvvm.data.db.WeatherLocationDao
 import com.asama.luong.forecastmvvm.data.db.entity.WeatherLocation
-import com.asama.luong.forecastmvvm.data.db.unitlocalized.UnitSpecificCurrentWeatherEntry
+import com.asama.luong.forecastmvvm.data.db.unitlocalized.current.UnitSpecificCurrentWeatherEntry
 import com.asama.luong.forecastmvvm.data.network.WeatherNetworkDataSource
 import com.asama.luong.forecastmvvm.data.network.response.CurrentWeatherResponse
 import com.asama.luong.forecastmvvm.data.provider.LocationProvider

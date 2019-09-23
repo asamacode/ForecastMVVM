@@ -1,4 +1,4 @@
-package com.asama.luong.forecastmvvm.data.db.unitlocalized
+package com.asama.luong.forecastmvvm.data.db.unitlocalized.current
 
 interface UnitSpecificCurrentWeatherEntry {
     val temperature: Double
