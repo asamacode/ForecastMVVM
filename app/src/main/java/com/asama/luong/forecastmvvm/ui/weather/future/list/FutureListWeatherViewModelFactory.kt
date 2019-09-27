@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.asama.luong.forecastmvvm.data.provider.UnitProvider
 import com.asama.luong.forecastmvvm.data.repository.ForecastRepository
 
-class FutureViewModelFactory(
+class FutureListWeatherViewModelFactory(
     private val forecastRepository: ForecastRepository,
     private val unitProvider: UnitProvider
 ) : ViewModelProvider.NewInstanceFactory() {
