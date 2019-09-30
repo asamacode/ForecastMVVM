@@ -4,11 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.asama.luong.forecastmvvm.R
+import com.asama.luong.forecastmvvm.data.db.unitlocalized.future.UnitSpecificSimpleFutureWeatherEntry
 import com.asama.luong.forecastmvvm.ui.base.ScopedFragment
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.future_list_weather_fragment.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,6 +39,7 @@ class FutureListWeatherFragment : ScopedFragment(), KodeinAware {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FutureListWeatherViewModel::class.java)
         // TODO: Use the ViewModel
+        bindUI()
     }
 
     private fun bindUI() = launch(Dispatchers.Main) {
@@ -51,6 +57,7 @@ class FutureListWeatherFragment : ScopedFragment(), KodeinAware {
             group_loading.visibility = View.GONE
 
             updateDateToNextWeek()
+            initRecyclerView(weatherEntries.toFutureWeatherItem())
         })
     }
 
@@ -60,6 +67,27 @@ class FutureListWeatherFragment : ScopedFragment(), KodeinAware {
 
     private fun updateLocation(name: String) {
         (activity as? AppCompatActivity)?.supportActionBar?.title = name
+    }
+
+    private fun List<UnitSpecificSimpleFutureWeatherEntry>.toFutureWeatherItem(): List<FutureWeatherItem> {
+        return this.map {
+            FutureWeatherItem(it)
+        }
+    }
+
+    private fun initRecyclerView(items: List<FutureWeatherItem>) {
+        val groupAdapter = GroupAdapter<ViewHolder>().apply {
+            addAll(items)
+        }
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@FutureListWeatherFragment.context)
+            adapter = groupAdapter
+        }
+
+        groupAdapter.setOnItemClickListener { item, view ->
+            Toast.makeText(this@FutureListWeatherFragment.context, "Click", Toast.LENGTH_SHORT ).show()
+        }
     }
 
 }
